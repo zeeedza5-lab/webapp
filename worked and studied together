@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบนักศึกษาทำงานระหว่างเรียน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN for general utility, though custom styles are predominant -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #0000FF; /* สีน้ำเงินตามที่ระบุ */
+            color: #FFFFFF;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* จัดให้อยู่ด้านบนเมื่อมีเนื้อหาเยอะ */
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            flex-direction: column;
+            width: 100%; /* เพิ่มความกว้างให้เต็มจอ */
+        }
+
+        .login-section, .work-log-section {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-direction: column;
+        }
+        
+        /* สไตล์สำหรับ Login Container */
+        .login-container {
+            background-color: #FFFFFF; /* สีขาว */
+            padding: 40px;
+            border-radius: 15px; /* เพิ่มความโค้งมน */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* เงาที่ชัดเจนขึ้น */
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            color: #000000;
+            transition: all 0.3s ease-in-out;
+            margin-top: 50px; /* เพิ่มระยะห่างด้านบนเล็กน้อย */
+            align-self: center; /* จัดให้อยู่ตรงกลาง */
+        }
+        .login-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-container h1, .login-container h2 {
+            color: #0000FF; /* สีน้ำเงิน */
+            margin-bottom: 10px;
+        }
+        .login-container h1 {
+            font-size: 2rem; /* ขนาดใหญ่ขึ้น */
+            font-weight: 700;
+        }
+        .login-container h2 {
+            font-size: 1.1rem; /* ขนาดที่เหมาะสม */
+            font-weight: 400;
+            margin-bottom: 30px;
+        }
+        
+        .login-container label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 12px; /* เพิ่ม padding */
+            margin: 10px 0;
+            border: 1px solid #ced4da; /* สีขอบอ่อนลง */
+            border-radius: 8px; /* เพิ่มความโค้งมน */
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input[type="password"]{
+            -webkit-text-security: disc;
+        }
+        .login-container input:focus {
+            outline: none;
+            border-color: #007bff; /* สีน้ำเงินเมื่อ focus */
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        .login-container button {
+            background-color: #FF0000; /* สีแดงตามที่ระบุ */
+            color: #FFFFFF;
+            padding: 12px 25px; /* เพิ่ม padding */
+            border: none;
+            border-radius: 8px; /* เพิ่มความโค้งมน */
+            cursor: pointer;
+            font-size: 1.1em; /* ขนาดใหญ่ขึ้น */
+            font-weight: 700;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%; /* เต็มความกว้าง */
+            margin-top: 20px;
+        }
+
+        .login-container button:hover {
+            background-color: #cc0000; /* แดงเข้มขึ้นเมื่อ hover */
+            transform: translateY(-2px);
+        }
+        .login-container button:active {
+            transform: translateY(0);
+            background-color: #990000;
+        }
+
+        .message-box {
+            background-color: #f8d7da; /* Light red for error */
+            color: #721c24; /* Dark red for text */
+            padding: 10px;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            display: none; /* Hidden by default */
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        /* สไตล์สำหรับ Work Log Section */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%; /* เต็มความกว้าง */
+        }
+
+        h1, h2, #loggedInUserDisplay {
+            color: #FFFFFF;
+        }
+
+        h1 {
+            font-size: 2rem; /* ขนาดใหญ่ขึ้น */
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 1.1rem; /* ขนาดที่เหมาะสม */
+            font-weight: 400;
+            margin-bottom: 30px;
+        }
+        
+        #loggedInUserDisplay {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: right;
+            width: 100%;
+            padding-right: 20px;
+            box-sizing: border-box;
+        }
+
+        h3 {
+            color: #0000FF; /* สีน้ำเงินสำหรับหัวข้อภายใน */
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .work-form, .work-table {
+            background-color: #FFFFFF; /* สีขาว */
+            padding: 25px; /* เพิ่ม padding */
+            border-radius: 15px; /* เพิ่มความโค้งมน */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* เงาที่ชัดเจนขึ้น */
+            margin-bottom: 20px;
+            color: #000000;
+            max-width: 960px; /* จำกัดความกว้าง */
+            width: 100%; /* เต็มความกว้างภายใน max-width */
+            margin-left: auto;
+            margin-right: auto;
+            transition: all 0.3s ease-in-out;
+        }
+        .work-form:hover, .work-table:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-group {
+            margin-bottom: 18px; /* เพิ่มระยะห่าง */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px; /* เพิ่มระยะห่าง */
+            font-weight: 600; /* ตัวหนาขึ้น */
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px; /* เพิ่ม padding */
+            border: 1px solid #ced4da; /* สีขอบอ่อนลง */
+            border-radius: 8px; /* เพิ่มความโค้งมน */
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #007bff; /* สีน้ำเงินเมื่อ focus */
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        button[type="submit"] {
+            background-color: #007bff; /* สีน้ำเงินสำหรับปุ่มบันทึก */
+            color: #FFFFFF;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 10px;
+            width: 100%; /* เต็มความกว้าง */
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3; /* น้ำเงินเข้มขึ้นเมื่อ hover */
+            transform: translateY(-2px);
+        }
+        button[type="submit"]:active {
+            transform: translateY(0);
+            background-color: #004085;
+        }
+
+        .work-table table {
+            width: 100%;
+            border-collapse: separate; /* เพื่อให้สามารถใช้ border-radius ได้ */
+            border-spacing: 0;
+            margin-top: 20px;
+            overflow: hidden; /* ซ่อนส่วนเกินเพื่อให้ border-radius ทำงาน */
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .work-table th, .work-table td {
+            border-bottom: 1px solid #eee; /* เส้นขอบด้านล่าง */
+            padding: 12px 15px; /* เพิ่ม padding */
+            text-align: left;
+            vertical-align: middle;
+        }
+        .work-table th {
+            background-color: #007bff; /* พื้นหลังสีน้ำเงิน */
+            color: #fff;
+            font-weight: 700;
+        }
+        .work-table tr:last-child td {
+            border-bottom: none; /* ลบเส้นขอบล่างของแถวสุดท้าย */
+        }
+        .work-table tr:nth-child(even) {
+            background-color: #f8fafd; /* แถบสีอ่อน */
+        }
+
+        .status-button { /* เปลี่ยนจาก status-badge เป็น status-button */
+            padding: 8px 15px;
+            border-radius: 20px; /* โค้งมนมากขึ้น */
+            color: #FFFFFF;
+            font-weight: 600;
+            display: inline-block;
+            cursor: pointer; /* แสดงว่าเป็น clickable */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .status-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none; /* ลบเอฟเฟกต์ hover/active เมื่อ disabled */
+        }
+        .status-button:disabled:hover {
+            background-color: inherit; /* ป้องกันการเปลี่ยนสีเมื่อ hover บน disabled */
+        }
+
+        .status-working {
+            background-color: #FFA500; /* สีส้ม */
+        }
+
+        .status-completed { /* ใช้ 'status-completed' สำหรับ 'ทำงานเสร็จ' */
+            background-color: #008000; /* สีเขียว */
+        }
+        .status-button:hover:not(:disabled) { /* เพิ่ม :not(:disabled) */
+            opacity: 0.9;
+            transform: scale(1.03);
+        }
+        .status-button:active:not(:disabled) { /* เพิ่ม :not(:disabled) */
+            transform: scale(1);
+        }
+
+        /* Responsive design for mobile */
+        @media (max-width: 768px) { /* ใช้ 768px เพื่อครอบคลุมแท็บเล็ตเล็ก */
+            body {
+                padding: 10px;
+            }
+            .work-form, .work-table {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+            h2 {
+                font-size: 1rem;
+                margin-bottom: 20px;
+            }
+            h3 {
+                font-size: 1.2rem;
+            }
+            .work-table table, .work-table thead, .work-table tbody, .work-table th, .work-table td, .work-table tr {
+                display: block;
+            }
+            .work-table thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            .work-table tr {
+                border: 1px solid #ddd;
+                margin-bottom: 15px;
+                border-radius: 10px;
+                overflow: hidden;
+            }
+            .work-table td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%; /* ให้มีพื้นที่สำหรับ label */
+                text-align: right;
+            }
+            .work-table td:last-child {
+                border-bottom: none;
+            }
+            .work-table td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 600;
+                color: #555;
+            }
+            .status-button {
+                width: 100%;
+                text-align: center;
+                margin-top: 5px; /* ปรับตำแหน่งปุ่มสถานะ */
+            }
+        }
+        .info-message-box { /* เปลี่ยนชื่อจาก message-box เพื่อไม่ให้ซ้ำกับ login-error-message */
+            background-color: #d1ecf1; /* Light info blue */
+            color: #0c5460; /* Dark info blue for text */
+            padding: 10px;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* สไตล์สำหรับปุ่มออกจากระบบ */
+        .logout-button {
+            background-color: #dc3545; /* สีแดงสำหรับออกจากระบบ */
+            color: #FFFFFF;
+            padding: 12px 25px; /* ปรับขนาดให้เท่ากับปุ่มอื่น */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%; /* เต็มความกว้าง */
+            max-width: 960px;
+            margin: 20px auto 0; /* เพิ่ม margin ด้านบนและจัดให้อยู่ตรงกลาง */
+            display: block;
+        }
+        .logout-button:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+        .logout-button:active {
+            transform: translateY(0);
+            background-color: #990000;
+        }
+        @media (max-width: 600px) {
+            .logout-button {
+                padding: 10px 15px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loginSection" class="login-section">
+        <div class="login-container">
+            <h1>ระบบนักศึกษาทำงานระหว่างเรียน</h1>
+            <h2>มหาวิทยาลัยราชภัฏสงขลา สาขาวิศวกรรมโลจิสติกส์</h2>
+            
+            <div class="message-box" id="loginMessageBox"></div>
+
+            <form id="loginForm">
+                <label for="username">ชื่อผู้ใช้งาน (ชื่อ นามสกุล):</label>
+                <input type="text" id="username" placeholder="กรอกชื่อและนามสกุลของคุณ" required>
+                
+                <label for="studentID">รหัสนักศึกษา:</label>
+                <input type="password" id="studentID" placeholder="กรอกรหัสนักศึกษาของคุณ" required>
+                
+                <button type="submit">เข้าสู่ระบบ</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="workLogSection" class="work-log-section" style="display: none;">
+        <header>
+            <h1>ระบบนักศึกษาทำงานระหว่างเรียน</h1>
+            <h2>มหาวิทยาลัยราชภัฏสงขลา สาขาวิศวกรรมโลจิสติกส์</h2>
+        </header>
+
+        <!-- แสดงชื่อผู้ใช้งานที่ล็อกอินอยู่ -->
+        <div id="loggedInUserDisplay"></div>
+
+        <div class="work-form">
+            <h3>บันทึกข้อมูลการทำงาน</h3>
+            <form id="workEntryForm">
+                <div class="form-group">
+                    <label for="workDate">วันเดือนปี</label>
+                    <input type="date" id="workDate" required class="rounded-md">
+                </div>
+                <div class="form-group">
+                    <label for="timeIn">เวลาเข้างาน</label>
+                    <input type="time" id="timeIn" required class="rounded-md">
+                </div>
+                <div class="form-group">
+                    <label for="timeOut">เวลาออกงาน</label>
+                    <input type="time" id="timeOut" required class="rounded-md">
+                </div>
+                <div class="form-group">
+                    <label for="totalHours">ชั่วโมงรวม</label>
+                    <input type="text" id="totalHours" readonly class="rounded-md">
+                </div>
+                <div class="form-group">
+                    <label for="workDetails">รายละเอียดงานที่ปฏิบัติ</label>
+                    <textarea id="workDetails" rows="4" placeholder="เช่น ช่วยงานธุรการ, จัดเรียงเอกสาร" required class="rounded-md"></textarea>
+                </div>
+                <button type="submit" class="rounded-md">บันทึกข้อมูล</button>
+            </form>
+        </div>
+
+        <div class="work-table">
+            <h3>ประวัติการทำงาน</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ลำดับ</th>
+                        <th>ชื่อนักศึกษา/รหัส</th>
+                        <th>วันเดือนปี</th>
+                        <th>เวลาเข้างาน</th>
+                        <th>เวลาออกงาน</th>
+                        <th>ชั่วโมงรวม</th>
+                        <th>รายละเอียดงาน</th>
+                        <th>สถานะ</th>
+                        <th>ผู้ควบคุมงาน</th>
+                    </tr>
+                </thead>
+                <tbody id="workTableBody">
+                    <!-- Data will be dynamically loaded here -->
+                </tbody>
+            </table>
+        </div>
+        <button id="logoutButton" class="logout-button">ออกจากระบบ</button> <!-- ปุ่มออกจากระบบ -->
+    </div>
+    
+    <script>
+        const loginSection = document.getElementById('loginSection');
+        const workLogSection = document.getElementById('workLogSection');
+        const loginMessageBox = document.getElementById('loginMessageBox');
+        const loggedInUserDisplay = document.getElementById('loggedInUserDisplay');
+        const logoutButton = document.getElementById('logoutButton');
+
+        // รายชื่อนักศึกษาและรหัสนักศึกษาที่ถูกต้อง
+        const validUsers = [
+            { name: "นัสรีน ชูสง", studentID: "664906032" },
+            { name: "นุรฮีดายะฮ์ จูมะ", studentID: "664906033" },
+            { name: "รอกิ๊บ อิสเฮาะ", studentID: "664906040" },
+            { name: "สมโชค ทองสีดำ", studentID: "664906041" },
+            { name: "อดิศร ยังโยมร", studentID: "664906051" },
+            { name: "อารีน่า ยาโย๊บ", studentID: "664906052" },
+            { name: "นภัสกร สงแก้ว", studentID: "6649060058" },
+            { name: "พัชรา แสงแก้ว", studentID: "664906060" },
+            { name: "ณัฐพงษ์ สูงใหญ่", studentID: "594907008" }
+        ];
+
+        let currentLoggedInUser = null;
+        let currentLoggedInStudentID = null;
+        const GLOBAL_VIEWER_STUDENT_ID = "594907008"; 
+
+        // Function เพื่อบันทึกข้อมูลการทำงานลงใน localStorage
+        // ข้อมูลจะถูกเก็บในรูปแบบ { 'studentID': [{...}, {...}] }
+        function saveAllStudentWorkData(data) {
+            localStorage.setItem('allStudentWorkData', JSON.stringify(data));
+        }
+
+        // Function เพื่อโหลดข้อมูลการทำงานจาก localStorage
+        function loadAllStudentWorkData() {
+            const storedData = localStorage.getItem('allStudentWorkData');
+            return storedData ? JSON.parse(storedData) : {};
+        }
+
+        // Function สำหรับ render ข้อมูลการทำงานลงในตาราง
+        function renderWorkEntries(entriesToDisplay) {
+            const tableBody = document.getElementById('workTableBody');
+            tableBody.innerHTML = ''; // ล้างข้อมูลเดิม
+
+            // ตรวจสอบว่าผู้ใช้ที่ล็อกอินอยู่คือ ณัฐพงษ์ สูงใหญ่ หรือไม่
+            const isGlobalViewer = currentLoggedInStudentID === GLOBAL_VIEWER_STUDENT_ID;
+
+            entriesToDisplay.forEach((entry, index) => {
+                const row = tableBody.insertRow();
+                const statusClass = entry.status === 'กำลังทำงาน' ? 'status-working' : 'status-completed';
+                
+                // กำหนดสถานะ disabled และ cursor-style ตามสิทธิ์ของผู้ใช้
+                const isButtonDisabled = !isGlobalViewer;
+                const buttonDisabledAttribute = isButtonDisabled ? 'disabled' : '';
+                
+                // ค้นหาชื่อนักศึกษาจากรหัสนักศึกษา
+                const studentName = validUsers.find(user => user.studentID === entry.studentID)?.name || 'ไม่ระบุ';
+
+                row.innerHTML = `
+                    <td data-label="ลำดับ">${index + 1}</td>
+                    <td data-label="ชื่อนักศึกษา/รหัส">${studentName}<br>${entry.studentID}</td>
+                    <td data-label="วันเดือนปี">${entry.workDate}</td>
+                    <td data-label="เวลาเข้างาน">${entry.timeIn}</td>
+                    <td data-label="เวลาออกงาน">${entry.timeOut}</td>
+                    <td data-label="ชั่วโมงรวม">${entry.totalHours}</td>
+                    <td data-label="รายละเอียดงาน">${entry.workDetails}</td>
+                    <td data-label="สถานะ">
+                        <button type="button" class="status-button ${statusClass}" 
+                                data-student-id="${entry.studentID}" 
+                                data-entry-index="${entry.originalIndex}"
+                                ${buttonDisabledAttribute}>
+                            ${entry.status}
+                        </button>
+                    </td>
+                    <td data-label="ผู้ควบคุมงาน">${entry.supervisor}</td>
+                `;
+            });
+
+            // เพิ่ม Event Listeners สำหรับปุ่มเปลี่ยนสถานะ
+            document.querySelectorAll('.status-button:not([disabled])').forEach(button => {
+                button.removeEventListener('click', handleStatusButtonClick); 
+                button.addEventListener('click', handleStatusButtonClick);
+            });
+        }
+
+        // Function สำหรับจัดการการคลิกปุ่มสถานะ
+        function handleStatusButtonClick(event) {
+            const button = event.currentTarget;
+            const targetStudentID = button.dataset.studentId;
+            const targetEntryIndex = parseInt(button.dataset.entryIndex);
+
+            let allData = loadAllStudentWorkData();
+            if (allData[targetStudentID] && allData[targetStudentID][targetEntryIndex]) {
+                const entry = allData[targetStudentID][targetEntryIndex];
+                // เปลี่ยนสถานะ: ถ้าเป็น 'กำลังทำงาน' -> 'ทำงานเสร็จ', ถ้าเป็น 'ทำงานเสร็จ' -> 'กำลังทำงาน'
+                if (entry.status === 'กำลังทำงาน') {
+                    entry.status = 'ทำงานเสร็จ';
+                    entry.supervisor = 'อนุมัติ';
+                } else {
+                    entry.status = 'กำลังทำงาน';
+                    entry.supervisor = 'ยังไม่ได้อนุมัติ';
+                }
+                saveAllStudentWorkData(allData); // บันทึกข้อมูลทั้งหมด
+                refreshWorkEntriesDisplay(); // อัปเดตหน้าจอ
+            }
+        }
+
+
+        // Function เพื่ออัปเดตข้อมูลการทำงานบนหน้าจอตามผู้ใช้ที่ล็อกอิน
+        function refreshWorkEntriesDisplay() {
+            const allData = loadAllStudentWorkData();
+            let entriesToRender = [];
+
+            if (currentLoggedInStudentID === GLOBAL_VIEWER_STUDENT_ID) {
+                // ถ้าเป็น ณัฐพงษ์ สูงใหญ่ ให้รวบรวมข้อมูลทั้งหมดจากทุกๆ รหัสนักศึกษา
+                for (const studentID in allData) {
+                    if (allData.hasOwnProperty(studentID)) {
+                        allData[studentID].forEach((entry, index) => {
+                            // เพิ่ม originalIndex เข้าไปใน object เพื่อใช้อ้างอิง
+                            entriesToRender.push({ ...entry, studentID: studentID, originalIndex: index });
+                        });
+                    }
+                }
+                // จัดเรียงตามวันที่
+                entriesToRender.sort((a, b) => new Date(a.workDate) - new Date(b.workDate));
+            } else if (currentLoggedInStudentID) {
+                // ถ้าเป็นนักศึกษาคนอื่น ให้แสดงเฉพาะข้อมูลของตัวเอง
+                entriesToRender = (allData[currentLoggedInStudentID] || []).map((entry, index) => {
+                    // เพิ่ม originalIndex เข้าไปใน object เพื่อใช้อ้างอิง
+                    return { ...entry, studentID: currentLoggedInStudentID, originalIndex: index };
+                });
+            }
+            renderWorkEntries(entriesToRender);
+        }
+        
+        // Function เพื่อคำนวณชั่วโมงรวม
+        function calculateTotalHours(timeInStr, timeOutStr) {
+            if (!timeInStr || !timeOutStr) return '0:00';
+
+            const [inHour, inMinute] = timeInStr.split(':').map(Number);
+            const [outHour, outMinute] = timeOutStr.split(':').map(Number);
+
+            const inTime = new Date();
+            inTime.setHours(inHour, inMinute, 0, 0);
+
+            const outTime = new Date();
+            outTime.setHours(outHour, outMinute, 0, 0);
+
+            // จัดการกรณีที่เวลาออกงานเป็นวันถัดไป
+            if (outTime < inTime) {
+                outTime.setDate(outTime.getDate() + 1);
+            }
+
+            const diffMilliseconds = outTime - inTime;
+            const diffMinutes = Math.floor(diffMilliseconds / (1000 * 60));
+
+            const hours = Math.floor(diffMinutes / 60);
+            const minutes = diffMinutes % 60;
+
+            return `${hours}:${minutes.toString().padStart(2, '0')}`;
+        }
+
+        // Event Listener สำหรับการคำนวณชั่วโมงรวมเมื่อมีการเปลี่ยนแปลงเวลา
+        document.getElementById('workEntryForm').addEventListener('input', function() {
+            const timeIn = document.getElementById('timeIn').value;
+            const timeOut = document.getElementById('timeOut').value;
+            document.getElementById('totalHours').value = calculateTotalHours(timeIn, timeOut);
+        });
+
+        // Handle form submission (บันทึกข้อมูลการทำงาน)
+        document.getElementById('workEntryForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // ป้องกันการส่งฟอร์มแบบดั้งเดิม
+
+            const workDate = document.getElementById('workDate').value;
+            const timeIn = document.getElementById('timeIn').value;
+            const timeOut = document.getElementById('timeOut').value;
+            const totalHours = document.getElementById('totalHours').value;
+            const workDetails = document.getElementById('workDetails').value;
+
+            const newEntry = {
+                workDate: workDate,
+                timeIn: timeIn,
+                timeOut: timeOut,
+                totalHours: totalHours,
+                workDetails: workDetails,
+                status: 'กำลังทำงาน', // สถานะเริ่มต้นเป็น "กำลังทำงาน"
+                supervisor: 'ยังไม่ได้อนุมัติ' // ผู้ควบคุมงานเริ่มต้นเป็น "ยังไม่ได้อนุมัติ"
+            };
+
+            let allData = loadAllStudentWorkData();
+            if (!allData[currentLoggedInStudentID]) {
+                allData[currentLoggedInStudentID] = [];
+            }
+            allData[currentLoggedInStudentID].push(newEntry);
+            saveAllStudentWorkData(allData); // บันทึกข้อมูลทั้งหมด
+
+            refreshWorkEntriesDisplay(); // อัปเดตตาราง
+
+            // รีเซ็ตฟอร์ม
+            this.reset();
+            document.getElementById('totalHours').value = ''; // ล้างค่าชั่วโมงรวม
+        });
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // ป้องกันการส่งฟอร์มแบบดั้งเดิม
+
+            const usernameInput = document.getElementById('username').value.trim();
+            const studentIDInput = document.getElementById('studentID').value.trim();
+
+            let isAuthenticated = false;
+            let authenticatedUser = null;
+
+            // ตรวจสอบข้อมูลล็อกอินกับรายการ validUsers
+            for (const user of validUsers) {
+                if (user.name === usernameInput && user.studentID === studentIDInput) {
+                    isAuthenticated = true;
+                    authenticatedUser = user;
+                    break;
+                }
+            }
+
+            if (isAuthenticated) {
+                // หากล็อกอินสำเร็จ เก็บข้อมูลผู้ใช้ใน sessionStorage และสลับส่วนแสดงผล
+                sessionStorage.setItem('loggedInUser', authenticatedUser.name); // เก็บชื่อเต็ม
+                sessionStorage.setItem('loggedInStudentID', authenticatedUser.studentID);
+                currentLoggedInUser = authenticatedUser.name;
+                currentLoggedInStudentID = authenticatedUser.studentID; // กำหนด currentLoggedInStudentID
+
+                loggedInUserDisplay.textContent = `ผู้ใช้งาน: ${currentLoggedInUser} (${currentLoggedInStudentID})`;
+
+                loginSection.style.display = 'none';
+                workLogSection.style.display = 'flex';
+                refreshWorkEntriesDisplay(); // โหลดข้อมูลการทำงานเมื่อล็อกอินสำเร็จ
+            } else {
+                loginMessageBox.textContent = 'ชื่อผู้ใช้งานหรือรหัสนักศึกษาไม่ถูกต้อง โปรดลองอีกครั้ง';
+                loginMessageBox.style.display = 'block'; // แสดงกล่องข้อความผิดพลาด
+            }
+        });
+
+        // Function สำหรับออกจากระบบ
+        function logout() {
+            sessionStorage.removeItem('loggedInUser');
+            sessionStorage.removeItem('loggedInStudentID');
+            currentLoggedInUser = null;
+            currentLoggedInStudentID = null; // ล้าง student ID ที่ล็อกอินอยู่
+
+            loggedInUserDisplay.textContent = '';
+
+            loginSection.style.display = 'flex';
+            workLogSection.style.display = 'none';
+            // ล้างข้อมูลฟอร์มล็อกอิน
+            document.getElementById('loginForm').reset();
+            loginMessageBox.style.display = 'none'; // ซ่อนข้อความแจ้งเตือน
+
+            // ล้างข้อมูลบน UI ให้ว่างเปล่า
+            renderWorkEntries([]);
+        }
+
+        // Event listener สำหรับปุ่มออกจากระบบ
+        logoutButton.addEventListener('click', logout);
+
+        // เพิ่มเอฟเฟกต์การสัมผัสสำหรับปุ่มบนอุปกรณ์มือถือ
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            button.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // ตรวจสอบสถานะการล็อกอินเมื่อโหลดหน้าครั้งแรก
+        if (sessionStorage.getItem('loggedInUser') && sessionStorage.getItem('loggedInStudentID')) {
+            currentLoggedInUser = sessionStorage.getItem('loggedInUser');
+            currentLoggedInStudentID = sessionStorage.getItem('loggedInStudentID');
+            loggedInUserDisplay.textContent = `ผู้ใช้งาน: ${currentLoggedInUser} (${currentLoggedInStudentID})`;
+            loginSection.style.display = 'none';
+            workLogSection.style.display = 'flex';
+            refreshWorkEntriesDisplay();
+        } else {
+            loginSection.style.display = 'flex';
+            workLogSection.style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
